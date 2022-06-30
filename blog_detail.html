@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客详情页</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/blog_detail.css">
+        <!-- 引入 editor.md 的依赖 -->
+        <link rel="stylesheet" href="editor.md/css/editormd.min.css"/>
+        <script src="js/jquery.min.js"></script>
+        <script src="editor.md/lib/marked.min.js"></script>
+        <script src="editor.md/lib/prettify.min.js"></script>
+        <script src="editor.md/editormd.js"></script>
+
+
+</head>
+<body>
+    <!-- 这是导航栏 -->
+    <div class="nav">
+        <img src="image/star.jpg" alt="">
+        <span>我的博客系统</span>
+        <!-- 空白元素, 用来占位置 -->
+        <div class="spacer"></div>
+        <a href="blog_list.html">主页</a>
+        <a href="blog_edit.html">写博客</a>
+        <a href="#">注销</a>
+    </div>
+    <!-- 这里的 .container 作为页面的版心 -->
+    <div class="container">
+        <!-- 左侧个人信息 -->
+        <div class="left">
+            <!-- 表示整个用户信息区域. -->
+            <div class="card">
+                <img src="image/star.jpg" alt="">
+                <h3>殷子豪</h3>
+                <a href="#">github 地址</a>
+                <div class="counter">
+                    <span>文章</span>
+                    <span>分类</span>
+                </div>
+                <div class="counter">
+                    <span>2</span>
+                    <span>1</span>
+                </div>
+            </div>
+        </div>
+        <!-- 右侧内容详情 -->
+        <div class="right">
+            <!-- 使用这个 div 来包裹整个博客的内容详情 -->
+            <div class="blog-content">
+                <!-- 博客标题 -->
+                <h3></h3>
+                <!-- 博客的时间 -->
+                <div class="date"></div>
+               <!--博客的正文内容-->
+               <div id="content" style="opacity: 80%;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getBlogDetail(body){
+         $.ajax({
+            type:'get',
+            url:'blog' + location.search,
+            success:function (body){
+                //1.构造博客标题
+               let h3=document.querySelector(".blog-content>h3");
+               h3.innerHTML=body.title;
+               //2.构造博客创建时间
+               let dateDiv=document.querySelector('.date');
+               dateDiv.innerHTML=body.postTime;
+               editormd.markdownToHTML('content',{
+                markdown: body.content
+               })
+            }
+         });  
+        }
+        getBlogDetail();
+        function getUserInfo(pageName) {
+    $.ajax({
+        type: 'get',
+        url: 'login',
+        success: function(body) {
+            // 判定此处的 body 是不是一个有效的 user 对象(userId 是否非 0)
+            if (body.userId && body.userId > 0) {
+                // 登录成功!
+                // 不做处理!
+                console.log("当前用户登录成功! 用户名: " + body.username);
+
+                // 根据当前用户登录的情况, 把当前用户名设置到界面上
+                if (pageName == 'blog_list.html') {
+                    changeUserName(body.username);
+                }
+            } else {
+                // 登录失败!
+                // 让前端页面, 跳转到 login.htmls
+                alert("当前您尚未登录! 请登录后再访问博客列表!");
+                location.assign('blog_login.html');
+            }
+        },
+        error: function() {
+            alert("当前您尚未登录! 请登录后再访问博客列表!");
+            location.assign('blog_login.html');
+        }
+    });
+}
+getUserInfo();
+    </script>
+</body>
+</html>
